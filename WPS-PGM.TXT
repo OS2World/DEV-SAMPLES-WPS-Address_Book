@@ -1,0 +1,267 @@
+OS/2 Work Place Shell Sample Program
+
+Copyright (C) 1993 IBM Corporation
+
+  DISCLAIMER OF WARRANTIES.  The following [enclosed] code is
+  sample code created by IBM Corporation.  This sample code is
+  not part of any standard or IBM product and is provided to you
+  solely for the purpose of assisting you in the development of
+  your applications.  The code is provided "AS IS", without
+  warranty of any kind.  IBM shall not be liable for any damages
+  arising out of your use of the sample code, even if they have
+  been advised of the possibility of such damages.
+
+Introduction
+
+  Here is a list of problems encountered while writing various 
+  subclasses of the WPS hierarchy.  Where possible, workarounds
+  have been documented.  Boca is aware of these problems and plans
+  to address them after 2.1 has shipped.
+
+  The problems below are known to be accurate as of 04/12/93.
+  Later releases of OS/2 may have corrected all or some of these
+  problems.
+
+Problem 1:
+
+  WPS subclasses the hwndFrame window passed in on the 
+  wpRegisterView, and also will subclass the owner of the hwndCnr 
+  passed in on wpCnrInsertObject.  The WPS container owner 
+  subclass handles many of the WM_CONTROL (CN_) notification 
+  messages from the container control to provide standard WPS 
+  object behavior, eg, drag/drop and pop-up menus.  
+
+  After calling wpRegisterView, the container owner frame 
+  window procedure subclass chain looks like this:
+
+    1. WPS container owner subclass procedure, first, followed by
+    2. Your frame subclass, followed by
+    3. WC_FRAME, followed by
+    4. WinDefWindowProc last.
+
+  ADDRBKV.C has example code that shows how (1) and (2) can be 
+  reversed so your window procedure gets messages before the WPS 
+  container owner subclass window procedure.  Putting your window 
+  procedure before the WPS is part of the workaround for "Problem 
+  7" below.
+
+  There is no direct API to access the WPS container owner 
+  subclass window procedure (ie, it is not a registered window 
+  class like WC_FRAME).  
+
+  Indirectly the WPS container owner subclass window procedure can 
+  be accessed by calling wpCnrInsertObject, which subclasses the 
+  container owner, or wpRegisterView, which also subclasses the 
+  container owner.  
+
+  One possible long-term solution is to provide a 
+  "wpCnrRegisterOwner" API for frame owners of containers.  Note 
+  that WPS container owners MUST be subclasses of WC_FRAME!  
+
+Workaround for Problem 1:
+
+  Either call wpCnrInsertObject followed by wpCnrRemoveObject
+  (for example, inserting/removing the desktop object), or
+  call wpRegisterView, followed by WinSubclassWindow.  See
+  ShrOpenAddressBook in ADDRBKV.C.
+
+Problem 2:
+
+  The WPS container owner subclass window procedure assumes 
+  FID_CLIENT is a container.  If you need more than one WPS object 
+  container in a dialog, you must create a "dummy" frame owner
+  who has a single child window, a container with ID FID_CLIENT.  
+
+  Possible long-term solution is to have the WPS container owner 
+  subclass window procedure keep track of the ID or hwnd of its 
+  owned container.  
+
+Problem 3:
+
+  The wpCnrRemoveObject method always invalidates the record.  
+  This causes excessive redraw when removing several objects in
+  succession.
+
+Workaround for Problem 3:
+
+  Use WinEnableWindowUpdate(hwndCnr,FALSE), remove all of your 
+  objects with "wpCnrRemoveObject(OBJECT_FROM_PREC(pMiniRecord), 
+  hwndCnr)", followed by WinShowWindow(hwndCnr,TRUE).  See 
+  ShrEmptyObjectCnr in SHARE.C for more details.  
+
+  Possible long-term solution is to add a flInvalidateRecord flag
+  to wpCnrRemoveObject or add a wpCnrRemoveMultObjects API.
+
+Problem 4:
+
+  The "open folders" list shown on the "Opened" page of the 
+  "Copy...", "Move...", and "Create shadow..."  dialogs do not 
+  include open alternative folder views.  Only the open standard 
+  folder views of Icon, Details, and Tree are shown.  
+
+Workaround for Problem 4:
+
+  None.
+
+Problem 5:
+
+  Subfolders inherit their default view from their parent folder.  
+  If a new parent folder view is defined, the subfolders do not 
+  open when double-clicked because they don't support the view of
+  the parent.
+
+Workaround for Problem 5:
+
+  Don't subclass wpclsQueryDefaultView or wpQueryDefaultView
+  in your alternative folder view (ie, return one of the  
+  standard folder views: Icon, Details, or Tree).
+
+Problem 6:
+
+  Alternative folder views are not notified when an object is 
+  added or removed from the folder.
+
+Workaround for Problem 6:
+
+  Subclass from ShrFolder, which adds the methods 
+  shrAddedToContent and shrRemovedFromContent.
+
+Problem 7:
+
+  Help is not displayed for objects inserted into a container
+  with wpCnrInsertObject.
+
+Workaround for Problem 7:
+
+  Intercept WM_CONTROL (CN_HELP) in your frame container owner. 
+  Get the WPS object with OBJECT_FROM_PREC, followed by 
+  wpQueryDefaultHelp and then wpDisplayHelp.  See "Problem 1" 
+  above for more details.
+
+Problem 8:
+
+  The 'Selected' menu bar choice defined by CUA is very difficult 
+  to implement.
+
+Workaround for Problem 8:
+
+  None.  Menu bars can be added to the frame of a container owner 
+  only with great care.  Setting the owner of the menu bar to be 
+  the system menu appears to avoid confusing the WPS container 
+  owner subclass window procedure.
+
+Problem 9:
+
+  New base classes cannot be defined (WPAbstract, WPTransient, 
+  WPFileSystem).  Defining a DIRECT subclass of WPObject hangs the 
+  system.  
+
+Workaround for Problem 9:
+
+  None.
+
+Problem 10:
+
+  The hwndCnr parameter is NULLHANDLE if a pop-up request is made 
+  on the "whitespace" of an open view.  It should be the handle of 
+  the container requesting the pop-up menu (eg, to use it to 
+  display a different pop-up menu for different views).  Same is 
+  true for wpFilterPopupMenu.  
+
+Workaround for Problem 10:
+
+  None.
+
+Problem 11:
+
+  WPS sometimes copies subclasses of WPFileSystem directly using 
+  the DosCopy API (ie, bypassing the wpCopyObject method).  These 
+  "sneaky copies" don't allow the subclass an opportunity to 
+  update its internal data.  That is, some of its data cannot be 
+  copied byte for byte, it has to be updated for the new copy.  
+
+Workaround for Problem 11:
+
+  Make the object class style CLSSTYLE_NEVERCOPY to prevent WPS 
+  from calling DosCopy.
+
+  A long-term solution might be for WPS to provide a new class 
+  style, CLSSTYLE_NOSNEAKYCOPY.  
+
+Problem 12:
+
+  A hang (infinite loop) results if an object is inserted with
+  wpCnrInsertObject and is then deleted from another open view.
+
+Workaround for Problem 12:
+
+  The problem has been reported to Boca.  In the meantime, call
+  ShrCheckForDeletedObject in your frame container owner subclass 
+  at the beginning of your window procedure for each message it 
+  receives.
+
+  See ShrFrameCnrOwnerWndProc in SHARE.C for more details.
+
+Problem 13:
+
+   Not really a problem per se, but there should be a
+   wpclsQueryObjectFromID method.  Today, you have to use
+   WinQueryObject to get the HOBJECT followed by wpclsQueryObject.
+   WinQueryObject causes a cross process switch.
+
+Problem 14:
+
+  Suppose address book subclass of folder is created.  It displays
+  a new alternative folder view who's window structure is:  
+ 
+    hwndFrame
+      hwndNotebook
+      hwndFrameCnrOwner
+        hwndCnr
+ 
+  WPS assumes containers which contain WPS objects are direct 
+  children of the frame and that the container has an ID of 
+  FID_CLIENT.  Since the notebook is needed between the frame and 
+  the container, an extra frame, hwndFrameCnrOwner, was created.  
+  This works pretty well for most scenarios, except when bringing 
+  up the pop-up menu of the address book by MB2 on the whitespace
+  of hwndCnr.  
+
+  In version 2.0 ONLY (GA and GA+SP), this results in the wrong 
+  owner being set and 'Copy', 'Move' etc WM_COMMAND messages being 
+  sent to the wrong frame (the desktop).  So "Copy..."  selected 
+  from the address book actually displays a dialog titled "Drive 
+  C" as the folder, and "OS/2 2.0 Desktop" as the source.  
+ 
+  Note that in both versions (2.0 and 2.1 beta), the pop-up menu
+  emphasis is not shown for this scenario.  
+
+Problem 14:
+
+  Cannot update details view when underlying object data 
+  defined in a subclass changes.
+
+Workaround for Problem 14:
+
+  Call ShrCnrRefreshDetails (defined in SHRFOLDR.H).  See
+  NOTIFY.C for an example.
+
+Problem 15:
+
+  The iPosition parameter in the _wpInsertPopupMenuItems method is 
+  ignored.  
+
+Workaround for Problem 15:
+
+  Use the menu messages directly, eg, MM_INSERTITEM.
+
+Problem 16:
+
+  Multiple WPS subclasses in the same DLL would sometimes be
+  spontaneously unloaded by WPS on OS/2 2.0 GA causing
+  a trap.
+
+Workaround for Problem 16:
+
+  Have each class in a separate DLL, or upgrade to OS/2 2.1.
+

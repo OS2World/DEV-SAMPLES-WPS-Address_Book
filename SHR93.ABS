@@ -1,0 +1,25 @@
+SHARE Europe '93                                           04/12/93
+
+         OS/2 Work Place Shell Sample Program - Address Book
+
+                         Dan Kehn (74140,3263)
+
+  This example implements a simple address book.  An address book 
+  contains "people" who have names, addresses, phone numbers, etc.  
+
+  The address book is implemented as a subclass of the WPS folder 
+  class, WPFolder.  Subclassing WPFolder has the advantage of 
+  inheriting standard folder behavior, especially the Icon, 
+  Settings, and Details view.  The address book adds an additional
+  view, "Indexed View", which is an alphabetically-tabbed view of
+  the persons within the address book.
+
+  The person object contained within the address book is 
+  implemented as a subclass of WPAbstract.  Subclassing WPAbstract 
+  has the advantage of inheriting base WPS object behavior like 
+  drag/drop, pop-up menu, and the Settings view.  The person 
+  class adds an additional "Info" page to the Settings view where
+  the user can change an address, phone number, etc.
+
+  See the README.TXT file for more details.
+

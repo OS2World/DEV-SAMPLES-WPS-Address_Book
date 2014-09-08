@@ -1,0 +1,24 @@
+LIBRARY share INITINSTANCE
+DESCRIPTION 'Copyright (C) IBM Corporation, 1993'
+PROTMODE
+DATA MULTIPLE NONSHARED LOADONCALL
+
+EXPORTS
+   SOMInitModule
+
+EXPORTS
+   ShrPersonCClassData
+   ShrPersonClassData
+   ShrPersonNewClass
+   M_ShrPersonCClassData
+   M_ShrPersonClassData
+   M_ShrPersonNewClass
+
+EXPORTS
+   ShrAddressBookCClassData
+   ShrAddressBookClassData
+   ShrAddressBookNewClass
+   M_ShrAddressBookCClassData
+   M_ShrAddressBookClassData
+   M_ShrAddressBookNewClass
+

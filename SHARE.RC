@@ -1,0 +1,89 @@
+/*
+ * OS/2 Work Place Shell Sample Program
+ *
+ * Copyright (C) 1993 IBM Corporation
+ *
+ *   DISCLAIMER OF WARRANTIES.  The following [enclosed] code is
+ *   sample code created by IBM Corporation.  This sample code is
+ *   not part of any standard or IBM product and is provided to you
+ *   solely for the purpose of assisting you in the development of
+ *   your applications.  The code is provided "AS IS", without
+ *   warranty of any kind.  IBM shall not be liable for any damages
+ *   arising out of your use of the sample code, even if they have
+ *   been advised of the possibility of such damages.
+ *
+ * Top level resource file.
+ */
+
+#include <os2.h>
+#include <wpobject.h>
+#include "share.h"
+
+/*
+ * Pointers (IDP_), bitmaps files (IDB_).
+ */
+
+POINTER IDP_PERSON LOADONCALL MOVEABLE DISCARDABLE person.ico
+POINTER IDP_ADDRESSBOOK LOADONCALL MOVEABLE DISCARDABLE addrbk.ico
+
+/*
+ * String table (IDS_).
+ */
+
+STRINGTABLE
+{
+  IDS_ADDRESSBOOKTITLE "Address Book"
+  IDS_PERSONTITLE "Person"
+  IDS_PERSONNEWTITLE "Last name, First name"
+  IDS_PERSONINFOTAB "~Info"
+  IDS_ADDRESSBOOKVIEWTITLE "Indexed View"
+  IDS_INDEXTAB1 "A - C"
+  IDS_INDEXTAB2 "D - F"
+  IDS_INDEXTAB3 "G - I"
+  IDS_INDEXTAB4 "J - L"
+  IDS_INDEXTAB5 "M - O"
+  IDS_INDEXTAB6 "P - R"
+  IDS_INDEXTAB7 "S - U"
+  IDS_INDEXTAB8 "V - Z"
+  IDS_INDEXTAB9 "Misc"
+  IDS_INDEXCHARS1 "ABC"
+  IDS_INDEXCHARS2 "DEF"
+  IDS_INDEXCHARS3 "GHI"
+  IDS_INDEXCHARS4 "JKL"
+  IDS_INDEXCHARS5 "MNO"
+  IDS_INDEXCHARS6 "PQR"
+  IDS_INDEXCHARS7 "STU"
+  IDS_INDEXCHARS8 "VWXYZ"
+  IDS_INDEXCHARSALL "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  IDS_ADDRESS "Address"
+  IDS_CITY "City"
+  IDS_STATE "State"
+  IDS_ZIPCODE "Zip Code"
+  IDS_PHONE "Phone"
+  IDS_DEFAULTPHONE "(919) 469-6000"
+  IDS_DEFAULTADDRESS "11000 Regency Parkway"
+  IDS_DEFAULTCITY "Cary"
+  IDS_DEFAULTSTATE "NC"
+  IDS_DEFAULTZIPCODE "27511"
+}
+
+/*
+ * Menus templates (IDM_).
+ */
+
+MENU IDM_OPENADDRESSBOOK LOADONCALL MOVEABLE DISCARDABLE
+{
+  MENUITEM "I~ndexed view", ID_OPENADDRESSINDEXVIEW
+}
+
+MENU IDM_ADDRESSBOOK LOADONCALL MOVEABLE DISCARDABLE
+{
+  MENUITEM "Create ~person", ID_CREATEPERSON
+}
+
+/*
+ * Dialog templates.
+ */
+
+rcinclude share.dlg
+

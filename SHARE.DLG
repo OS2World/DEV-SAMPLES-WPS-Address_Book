@@ -1,0 +1,62 @@
+/*
+ * OS/2 Work Place Shell Sample Program - Dialogs
+ *
+ * Copyright (C) 1993 IBM Corporation
+ *
+ *   DISCLAIMER OF WARRANTIES.  The following [enclosed] code is
+ *   sample code created by IBM Corporation.  This sample code is
+ *   not part of any standard or IBM product and is provided to you
+ *   solely for the purpose of assisting you in the development of
+ *   your applications.  The code is provided "AS IS".  ALL
+ *   WARRANTIES ARE EXPRESSLY DISCLAIMED, INCLUDING THE IMPLIED
+ *   WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ *   PURPOSE.  IBM shall not be liable for any damages arising out
+ *   of your use of the sample code, even if IBM has been advised of
+ *   the possibility of such damages.
+ */
+
+/*
+ * Note: The person's "Info" page could be greatly improved by using 
+ * combo-boxes for the City, State, and Zip code fields (left as an
+ * exercise for the reader).
+ *
+ * Control data for ENTRYFIELD:
+ *
+ *   CTLDATA 8, cchEditLimit, ichMinSel, ichMaxSel
+ *
+ * Control data for MLE:
+ *
+ *   CTLDATA 28, aflImportExportFormat, cchText, 0, 
+ *       iptAnchor, iptCursor, cxFormat, cyFormat, afFormatFlags
+ *
+ * Each CTLDATA item is taken as a SHORT, so to enter a LONG, the
+ * low word goes first, eg, "260,0" for a LONG of 260.
+ */
+
+DLGTEMPLATE IDD_PERSONINFOPAGE LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", IDD_PERSONINFOPAGE, 76, -22, 200, 132, NOT FS_DLGBORDER |
+            WS_VISIBLE | FS_NOBYTEALIGN
+    BEGIN
+        MLE             "", ID_NAME, 40, 110, 148, 18, MLS_WORDWRAP |
+                        WS_GROUP | MLS_IGNORETAB
+                        CTLDATA 28, 0, 260,0, 0,0, 0,0, 0,0, 0,0, 0,0
+        ENTRYFIELD      "", ID_ADDRESS, 42, 96, 144, 8, ES_MARGIN
+                        CTLDATA 8, 128, 0, 0
+        ENTRYFIELD      "", ID_CITY, 42, 80, 40, 8, ES_MARGIN
+                        CTLDATA 8, 64, 0, 0
+        ENTRYFIELD      "", ID_STATE, 112, 80, 26, 8, ES_MARGIN
+                        CTLDATA 8, 48, 0, 0
+        ENTRYFIELD      "", ID_ZIPCODE, 160, 80, 34, 8, ES_MARGIN
+                        CTLDATA 8, 10, 0, 0
+        ENTRYFIELD      "", ID_PHONE, 42, 63, 70, 8, ES_MARGIN
+                        CTLDATA 8, 16, 0, 0
+        LTEXT           "Name:", 0, 12, 116, 28, 8
+        LTEXT           "Address:", 0, 2, 96, 36, 8
+        LTEXT           "City:", 0, 20, 80, 17, 8
+        LTEXT           "State:", 0, 86, 80, 24, 8
+        LTEXT           "Zip:", 0, 142, 80, 16, 8
+        LTEXT           "Phone:", 0, 8, 62, 30, 8
+    END
+END
+
